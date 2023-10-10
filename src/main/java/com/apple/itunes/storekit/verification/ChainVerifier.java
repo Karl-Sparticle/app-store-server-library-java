@@ -2,6 +2,8 @@
 
 package com.apple.itunes.storekit.verification;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.PublicKey;
@@ -75,7 +77,7 @@ public class ChainVerifier {
             parameters.setDate(effectiveDate);
             if (performRevocationChecking) {
                 PKIXRevocationChecker revocationChecker = (PKIXRevocationChecker) certPathValidator.getRevocationChecker();
-                revocationChecker.setOptions(Set.of(PKIXRevocationChecker.Option.NO_FALLBACK));
+                revocationChecker.setOptions(ImmutableSet.of(PKIXRevocationChecker.Option.NO_FALLBACK));
                 parameters.addCertPathChecker(revocationChecker);
             }
             parameters.addCertPathChecker(new AppleExtensionCertPathChecker());

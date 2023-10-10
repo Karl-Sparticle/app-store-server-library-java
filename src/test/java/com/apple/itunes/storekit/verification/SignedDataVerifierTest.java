@@ -2,17 +2,13 @@
 
 package com.apple.itunes.storekit.verification;
 
-import com.apple.itunes.storekit.model.Environment;
-import com.apple.itunes.storekit.model.JWSRenewalInfoDecodedPayload;
-import com.apple.itunes.storekit.model.JWSTransactionDecodedPayload;
-import com.apple.itunes.storekit.model.NotificationTypeV2;
-import com.apple.itunes.storekit.model.ResponseBodyV2DecodedPayload;
+import com.apple.itunes.storekit.model.*;
+import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
-import java.util.Set;
 
 public class SignedDataVerifierTest {
 
@@ -46,14 +42,14 @@ public class SignedDataVerifierTest {
 
     @Test
     public void testWrongBundleIdForTransaction() {
-        SignedDataVerifier verifier = new SignedDataVerifier(Set.of(new ByteArrayInputStream(Base64.getDecoder().decode(ROOT_CA_BASE64_ENCODED))), "com.example.x", 1234L, Environment.SANDBOX, false);
+        SignedDataVerifier verifier = new SignedDataVerifier(ImmutableSet.of(new ByteArrayInputStream(Base64.getDecoder().decode(ROOT_CA_BASE64_ENCODED))), "com.example.x", 1234L, Environment.SANDBOX, false);
         VerificationException exception = Assertions.assertThrows(VerificationException.class, () -> verifier.verifyAndDecodeTransaction(TRANSACTION_INFO));
         Assertions.assertEquals(Status.INVALID_APP_IDENTIFIER, exception.getStatus());
     }
 
     @Test
     public void testWrongEnvironmentForServerNotification() {
-        SignedDataVerifier verifier = new SignedDataVerifier(Set.of(new ByteArrayInputStream(Base64.getDecoder().decode(ROOT_CA_BASE64_ENCODED))), "com.example", 1234L, Environment.PRODUCTION, false);
+        SignedDataVerifier verifier = new SignedDataVerifier(ImmutableSet.of(new ByteArrayInputStream(Base64.getDecoder().decode(ROOT_CA_BASE64_ENCODED))), "com.example", 1234L, Environment.PRODUCTION, false);
         VerificationException exception = Assertions.assertThrows(VerificationException.class, () -> verifier.verifyAndDecodeNotification(TEST_NOTIFICATION));
         Assertions.assertEquals(Status.INVALID_ENVIRONMENT, exception.getStatus());
     }
@@ -87,6 +83,6 @@ public class SignedDataVerifierTest {
     }
 
     private SignedDataVerifier getSignedPayloadVerifier() {
-        return new SignedDataVerifier(Set.of(new ByteArrayInputStream(Base64.getDecoder().decode(ROOT_CA_BASE64_ENCODED))), "com.example", 1234L, Environment.SANDBOX, false);
+        return new SignedDataVerifier(ImmutableSet.of(new ByteArrayInputStream(Base64.getDecoder().decode(ROOT_CA_BASE64_ENCODED))), "com.example", 1234L, Environment.SANDBOX, false);
     }
 }

@@ -2,6 +2,8 @@
 
 package com.apple.itunes.storekit.verification;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.security.cert.CertPathValidatorException;
 import java.security.cert.Certificate;
 import java.security.cert.PKIXCertPathChecker;
@@ -38,7 +40,7 @@ public class AppleExtensionCertPathChecker extends PKIXCertPathChecker {
 
     @Override
     public Set<String> getSupportedExtensions() {
-        return Set.of(WWDR_INTERMEDIATE_OID, RECEIPT_SIGNER_OID);
+        return ImmutableSet.of(WWDR_INTERMEDIATE_OID, RECEIPT_SIGNER_OID);
     }
 
     @Override

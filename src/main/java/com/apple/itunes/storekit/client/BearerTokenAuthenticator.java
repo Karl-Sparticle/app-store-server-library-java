@@ -4,6 +4,7 @@ package com.apple.itunes.storekit.client;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.google.common.collect.ImmutableMap;
 
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -13,8 +14,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class BearerTokenAuthenticator {
     private static final String APP_STORE_CONNECT_AUDIENCE = "appstoreconnect-v1";
@@ -51,7 +50,7 @@ public class BearerTokenAuthenticator {
                 .withExpiresAt(Instant.now().plus(ChronoUnit.MINUTES.getDuration().multipliedBy(5)))
                 .withIssuer(issuerId)
                 .withKeyId(keyId)
-                .withPayload(Map.of(BUNDLE_ID_KEY, bundleId))
+                .withPayload(ImmutableMap.of(BUNDLE_ID_KEY, bundleId))
                 .sign(Algorithm.ECDSA256(signingKey));
     }
 }

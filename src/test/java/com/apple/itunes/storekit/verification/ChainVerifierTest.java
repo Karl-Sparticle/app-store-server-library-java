@@ -2,6 +2,7 @@
 
 package com.apple.itunes.storekit.verification;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +12,6 @@ import java.security.PublicKey;
 import java.security.cert.CertPathValidatorException;
 import java.util.Base64;
 import java.util.Date;
-import java.util.Set;
 
 public class ChainVerifierTest {
 
@@ -115,12 +115,12 @@ public class ChainVerifierTest {
 
     @Test
     public void testMalformedRootCerts() {
-        Assertions.assertThrows(Exception.class, () -> new ChainVerifier(Set.of(new ByteArrayInputStream(new byte[] {0, 1, 2}))));
+        Assertions.assertThrows(Exception.class, () -> new ChainVerifier(ImmutableSet.of(new ByteArrayInputStream(new byte[] {0, 1, 2}))));
     }
 
     @Test
     public void testEmptyRootCertificateList() {
-        Exception exception = Assertions.assertThrows(RuntimeException.class, () -> new ChainVerifier(Set.of()));
+        Exception exception = Assertions.assertThrows(RuntimeException.class, () -> new ChainVerifier(ImmutableSet.of()));
         Assertions.assertEquals("At least one root certificate is required", exception.getMessage());
     }
 
@@ -151,6 +151,6 @@ public class ChainVerifierTest {
     }
 
     private static ChainVerifier getChainVerifier(String base64EncodedRootCertificate) {
-        return new ChainVerifier(Set.of(new ByteArrayInputStream(Base64.getDecoder().decode(base64EncodedRootCertificate))));
+        return new ChainVerifier(ImmutableSet.of(new ByteArrayInputStream(Base64.getDecoder().decode(base64EncodedRootCertificate))));
     }
 }
