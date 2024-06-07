@@ -2,19 +2,13 @@
 
 package com.apple.itunes.storekit.model;
 
-import com.google.gson.TypeAdapter;
-import com.google.gson.annotations.JsonAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-
-import java.io.IOException;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * A notification subtype value that App Store Server Notifications 2 uses.
+ * A string that provides details about select notification types in version 2.
  *
- * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/notificationsubtype">notificationSubtype</a>
+ * @see <a href="https://developer.apple.com/documentation/appstoreservernotifications/subtype">subtype</a>
  */
-@JsonAdapter(Subtype.Adapter.class)
 public enum Subtype {
 
     INITIAL_BUY("INITIAL_BUY"),
@@ -32,7 +26,8 @@ public enum Subtype {
     BILLING_RECOVERY("BILLING_RECOVERY"),
     PRODUCT_NOT_FOR_SALE("PRODUCT_NOT_FOR_SALE"),
     SUMMARY("SUMMARY"),
-    FAILURE("FAILURE");
+    FAILURE("FAILURE"),
+    UNREPORTED("UNREPORTED");
 
     private final String value;
 
@@ -46,9 +41,10 @@ public enum Subtype {
                 return b;
             }
         }
-        throw new IllegalArgumentException("Unexpected value '" + value + "'");
+        return null;
     }
 
+    @JsonValue
     public String getValue() {
         return value;
     }
@@ -56,19 +52,6 @@ public enum Subtype {
     @Override
     public String toString() {
         return String.valueOf(value);
-    }
-
-    public static class Adapter extends TypeAdapter<Subtype> {
-        @Override
-        public void write(final JsonWriter jsonWriter, final Subtype enumeration) throws IOException {
-            jsonWriter.value(enumeration.getValue());
-        }
-
-        @Override
-        public Subtype read(final JsonReader jsonReader) throws IOException {
-            String value = jsonReader.nextString();
-            return Subtype.fromValue(value);
-        }
     }
 }
 

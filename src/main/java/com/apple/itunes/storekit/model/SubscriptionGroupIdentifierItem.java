@@ -2,10 +2,12 @@
 
 package com.apple.itunes.storekit.model;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -16,10 +18,12 @@ import java.util.Objects;
 public class SubscriptionGroupIdentifierItem {
     private static final String SERIALIZED_NAME_SUBSCRIPTION_GROUP_IDENTIFIER = "subscriptionGroupIdentifier";
     private static final String SERIALIZED_NAME_LAST_TRANSACTIONS = "lastTransactions";
-    @SerializedName(SERIALIZED_NAME_SUBSCRIPTION_GROUP_IDENTIFIER)
+    @JsonProperty(SERIALIZED_NAME_SUBSCRIPTION_GROUP_IDENTIFIER)
     private String subscriptionGroupIdentifier;
-    @SerializedName(SERIALIZED_NAME_LAST_TRANSACTIONS)
+    @JsonProperty(SERIALIZED_NAME_LAST_TRANSACTIONS)
     private List<LastTransactionsItem> lastTransactions = null;
+    @JsonAnySetter
+    private Map<String, Object> unknownFields;
 
 
     public SubscriptionGroupIdentifierItem() {
@@ -61,6 +65,7 @@ public class SubscriptionGroupIdentifierItem {
      * An array of the most recent App Store-signed transaction information and App Store-signed renewal information for all auto-renewable subscriptions in the subscription group.
      *
      * @return lastTransactions
+     * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/lasttransactionsitem">lastTransactionsItem</a>
      **/
     public List<LastTransactionsItem> getLastTransactions() {
         return lastTransactions;
@@ -68,6 +73,25 @@ public class SubscriptionGroupIdentifierItem {
 
     public void setLastTransactions(List<LastTransactionsItem> lastTransactions) {
         this.lastTransactions = lastTransactions;
+    }
+
+
+    public SubscriptionGroupIdentifierItem unknownFields(Map<String, Object> unknownFields) {
+        this.unknownFields = unknownFields;
+        return this;
+    }
+
+    /**
+     Fields that are not recognized for this object
+
+     @return A map of JSON keys to objects
+     */
+    public Map<String, Object> getUnknownFields() {
+        return unknownFields;
+    }
+
+    public void setUnknownFields(Map<String, Object> unknownFields) {
+        this.unknownFields = unknownFields;
     }
 
     @Override
@@ -80,12 +104,13 @@ public class SubscriptionGroupIdentifierItem {
         }
         SubscriptionGroupIdentifierItem subscriptionGroupIdentifierItem = (SubscriptionGroupIdentifierItem) o;
         return Objects.equals(this.subscriptionGroupIdentifier, subscriptionGroupIdentifierItem.subscriptionGroupIdentifier) &&
-                Objects.equals(this.lastTransactions, subscriptionGroupIdentifierItem.lastTransactions);
+                Objects.equals(this.lastTransactions, subscriptionGroupIdentifierItem.lastTransactions) &&
+                Objects.equals(this.unknownFields, subscriptionGroupIdentifierItem.unknownFields);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(subscriptionGroupIdentifier, lastTransactions);
+        return Objects.hash(subscriptionGroupIdentifier, lastTransactions, unknownFields);
     }
 
     @Override
@@ -93,6 +118,7 @@ public class SubscriptionGroupIdentifierItem {
         return "SubscriptionGroupIdentifierItem{" +
                 "subscriptionGroupIdentifier='" + subscriptionGroupIdentifier + '\'' +
                 ", lastTransactions=" + lastTransactions +
+                ", unknownFields=" + unknownFields +
                 '}';
     }
 }

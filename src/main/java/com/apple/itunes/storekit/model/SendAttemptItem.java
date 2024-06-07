@@ -2,8 +2,10 @@
 
 package com.apple.itunes.storekit.model;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -14,10 +16,12 @@ import java.util.Objects;
 public class SendAttemptItem {
     private static final String SERIALIZED_NAME_ATTEMPT_DATE = "attemptDate";
     private static final String SERIALIZED_NAME_SEND_ATTEMPT_RESULT = "sendAttemptResult";
-    @SerializedName(SERIALIZED_NAME_ATTEMPT_DATE)
+    @JsonProperty(SERIALIZED_NAME_ATTEMPT_DATE)
     private Long attemptDate;
-    @SerializedName(SERIALIZED_NAME_SEND_ATTEMPT_RESULT)
-    private SendAttemptResult sendAttemptResult;
+    @JsonProperty(SERIALIZED_NAME_SEND_ATTEMPT_RESULT)
+    private String sendAttemptResult;
+    @JsonAnySetter
+    private Map<String, Object> unknownFields;
 
     public SendAttemptItem() {
     }
@@ -42,7 +46,7 @@ public class SendAttemptItem {
     }
 
     public SendAttemptItem sendAttemptResult(SendAttemptResult sendAttemptResult) {
-        this.sendAttemptResult = sendAttemptResult;
+        this.sendAttemptResult = sendAttemptResult != null ? sendAttemptResult.getValue() : null;
         return this;
     }
 
@@ -53,11 +57,41 @@ public class SendAttemptItem {
      * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/sendattemptresult">sendAttemptResult</a>
      **/
     public SendAttemptResult getSendAttemptResult() {
+        return sendAttemptResult != null ? SendAttemptResult.fromValue(sendAttemptResult) : null;
+    }
+
+    /**
+     * @see #getSendAttemptResult()
+     */
+    public String getRawSendAttemptResult() {
         return sendAttemptResult;
     }
 
     public void setSendAttemptResult(SendAttemptResult sendAttemptResult) {
-        this.sendAttemptResult = sendAttemptResult;
+        this.sendAttemptResult = sendAttemptResult != null ? sendAttemptResult.getValue() : null;
+    }
+
+    public void setRawSendAttemptResult(String rawSendAttemptResult) {
+        this.sendAttemptResult = rawSendAttemptResult;
+    }
+
+
+    public SendAttemptItem unknownFields(Map<String, Object> unknownFields) {
+        this.unknownFields = unknownFields;
+        return this;
+    }
+
+    /**
+     Fields that are not recognized for this object
+
+     @return A map of JSON keys to objects
+     */
+    public Map<String, Object> getUnknownFields() {
+        return unknownFields;
+    }
+
+    public void setUnknownFields(Map<String, Object> unknownFields) {
+        this.unknownFields = unknownFields;
     }
 
     @Override
@@ -70,19 +104,21 @@ public class SendAttemptItem {
         }
         SendAttemptItem sendAttemptItem = (SendAttemptItem) o;
         return Objects.equals(this.attemptDate, sendAttemptItem.attemptDate) &&
-                Objects.equals(this.sendAttemptResult, sendAttemptItem.sendAttemptResult);
+                Objects.equals(this.sendAttemptResult, sendAttemptItem.sendAttemptResult) &&
+                Objects.equals(this.unknownFields, sendAttemptItem.unknownFields);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(attemptDate, sendAttemptResult);
+        return Objects.hash(attemptDate, sendAttemptResult, unknownFields);
     }
 
     @Override
     public String toString() {
-        return "TransactionInfoResponse{" +
+        return "SendAttemptItem{" +
                 "attemptDate=" + attemptDate +
-                ", sendAttemptResult=" + sendAttemptResult +
+                ", sendAttemptResult='" + sendAttemptResult + '\'' +
+                ", unknownFields=" + unknownFields +
                 '}';
     }
 }

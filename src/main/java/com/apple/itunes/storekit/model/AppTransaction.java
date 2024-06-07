@@ -1,14 +1,17 @@
 package com.apple.itunes.storekit.model;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
  Information that represents the customer’s purchase of the app, cryptographically signed by the App Store.
 
  @see <a href="https://developer.apple.com/documentation/storekit/apptransaction">AppTransaction</a>
-
  */
 public class AppTransaction implements DecodedSignedData {
 
@@ -24,28 +27,33 @@ public class AppTransaction implements DecodedSignedData {
     private static final String SERIALIZED_NAME_DEVICE_VERIFICATION_NONCE = "deviceVerificationNonce";
     private static final String SERIALIZED_NAME_PREORDER_DATE = "preorderDate";
 
-    @SerializedName(SERIALIZED_NAME_RECEIPT_TYPE)
-    private Environment receiptType;
-    @SerializedName(SERIALIZED_NAME_APP_APPLE_ID)
+    @JsonProperty(SERIALIZED_NAME_RECEIPT_TYPE)
+    private String receiptType;
+    @JsonProperty(SERIALIZED_NAME_APP_APPLE_ID)
     private Long appAppleId;
-    @SerializedName(SERIALIZED_NAME_BUNDLE_ID)
+    @JsonProperty(SERIALIZED_NAME_BUNDLE_ID)
     private String bundleId;
-    @SerializedName(SERIALIZED_NAME_APPLICATION_VERSION)
+    @JsonProperty(SERIALIZED_NAME_APPLICATION_VERSION)
     private String applicationVersion;
-    @SerializedName(SERIALIZED_NAME_VERSION_EXTERNAL_IDENTIFIER)
+    @JsonProperty(SERIALIZED_NAME_VERSION_EXTERNAL_IDENTIFIER)
     private Long versionExternalIdentifier;
-    @SerializedName(SERIALIZED_NAME_RECEIPT_CREATION_DATE)
+    @JsonProperty(SERIALIZED_NAME_RECEIPT_CREATION_DATE)
+    @JsonDeserialize(using = XcodeCompatibleTimestampDeserializer.class)
     private Long receiptCreationDate;
-    @SerializedName(SERIALIZED_NAME_ORIGINAL_PURCHASE_DATE)
+    @JsonProperty(SERIALIZED_NAME_ORIGINAL_PURCHASE_DATE)
+    @JsonDeserialize(using = XcodeCompatibleTimestampDeserializer.class)
     private Long originalPurchaseDate;
-    @SerializedName(SERIALIZED_NAME_ORIGINAL_APPLICATION_VERSION)
+    @JsonProperty(SERIALIZED_NAME_ORIGINAL_APPLICATION_VERSION)
     private String originalApplicationVersion;
-    @SerializedName(SERIALIZED_NAME_DEVICE_VERIFICATION)
+    @JsonProperty(SERIALIZED_NAME_DEVICE_VERIFICATION)
     private String deviceVerification;
-    @SerializedName(SERIALIZED_NAME_DEVICE_VERIFICATION_NONCE)
+    @JsonProperty(SERIALIZED_NAME_DEVICE_VERIFICATION_NONCE)
     private UUID deviceVerificationNonce;
-    @SerializedName(SERIALIZED_NAME_PREORDER_DATE)
+    @JsonProperty(SERIALIZED_NAME_PREORDER_DATE)
+    @JsonDeserialize(using = XcodeCompatibleTimestampDeserializer.class)
     private Long preorderDate;
+    @JsonAnySetter
+    private Map<String, Object> unknownFields;
 
     /**
      The server environment that signs the app transaction.
@@ -53,15 +61,26 @@ public class AppTransaction implements DecodedSignedData {
      @see <a href="https://developer.apple.com/documentation/storekit/apptransaction/3963901-environment">environment</a>
      */
     public Environment getReceiptType() {
+        return this.receiptType != null ? Environment.fromValue(this.receiptType) : null;
+    }
+
+    /**
+     * @see #getReceiptType()
+     */
+    public String getRawReceiptType() {
         return this.receiptType;
     }
 
     public void setReceiptType(Environment receiptType) {
-        this.receiptType = receiptType;
+        this.receiptType = receiptType != null ? receiptType.getValue() : null;
+    }
+
+    public void setRawReceiptType(String rawReceiptType) {
+        this.receiptType = rawReceiptType;
     }
 
     public AppTransaction receiptType(Environment receiptType) {
-        this.receiptType = receiptType;
+        this.receiptType = receiptType != null ? receiptType.getValue() : null;
         return this;
     }
 
@@ -124,7 +143,7 @@ public class AppTransaction implements DecodedSignedData {
 
      @see <a href="https://developer.apple.com/documentation/storekit/apptransaction/3954438-appversionid">appVersionID</a>
      */
-    public Long versionExternalIdentifier() {
+    public Long getVersionExternalIdentifier() {
         return this.versionExternalIdentifier;
     }
 
@@ -160,7 +179,7 @@ public class AppTransaction implements DecodedSignedData {
 
      @see <a href="https://developer.apple.com/documentation/storekit/apptransaction/3954448-originalpurchasedate">originalPurchaseDate</a>
      */
-    public Long originalPurchaseDate() {
+    public Long getOriginalPurchaseDate() {
         return this.originalPurchaseDate;
     }
 
@@ -233,7 +252,6 @@ public class AppTransaction implements DecodedSignedData {
 
      @see <a href="https://developer.apple.com/documentation/storekit/apptransaction/4013175-preorderdate">preorderDate</a>
      */
-    
     public Long getPreorderDate() {
         return preorderDate;
     }
@@ -247,8 +265,57 @@ public class AppTransaction implements DecodedSignedData {
         return this;
     }
 
+    /**
+     Fields that are not recognized for this object
+
+     @return A map of JSON keys to objects
+     */
+    public Map<String, Object> getUnknownFields() {
+        return unknownFields;
+    }
+
+    public void setUnknownFields(Map<String, Object> unknownFields) {
+        this.unknownFields = unknownFields;
+    }
+
+    public AppTransaction unknownFields(Map<String, Object> unknownFields) {
+        this.unknownFields = unknownFields;
+        return this;
+    }
+
     public Long getSignedDate() {
         return getReceiptCreationDate();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AppTransaction that = (AppTransaction) o;
+        return Objects.equals(receiptType, that.receiptType) && Objects.equals(appAppleId, that.appAppleId) && Objects.equals(bundleId, that.bundleId) && Objects.equals(applicationVersion, that.applicationVersion) && Objects.equals(versionExternalIdentifier, that.versionExternalIdentifier) && Objects.equals(originalPurchaseDate, that.originalPurchaseDate) && Objects.equals(originalApplicationVersion, that.originalApplicationVersion) && Objects.equals(deviceVerification, that.deviceVerification) && Objects.equals(deviceVerificationNonce, that.deviceVerificationNonce) && Objects.equals(preorderDate, that.preorderDate) && Objects.equals(unknownFields, that.unknownFields);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(receiptType, appAppleId, bundleId, applicationVersion, versionExternalIdentifier, originalPurchaseDate, originalApplicationVersion, deviceVerification, deviceVerificationNonce, preorderDate, unknownFields);
+    }
+
+    @Override
+    public String toString() {
+        return "AppTransaction{" +
+                "receiptType='" + receiptType + '\'' +
+                ", appAppleId=" + appAppleId +
+                ", bundleId='" + bundleId + '\'' +
+                ", applicationVersion='" + applicationVersion + '\'' +
+                ", versionExternalIdentifier=" + versionExternalIdentifier +
+                ", receiptCreationDate=" + receiptCreationDate +
+                ", originalPurchaseDate=" + originalPurchaseDate +
+                ", originalApplicationVersion='" + originalApplicationVersion + '\'' +
+                ", deviceVerification='" + deviceVerification + '\'' +
+                ", deviceVerificationNonce=" + deviceVerificationNonce +
+                ", preorderDate=" + preorderDate +
+                ", unknownFields=" + unknownFields +
+                '}';
     }
 }
 

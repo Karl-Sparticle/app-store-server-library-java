@@ -2,8 +2,11 @@
 
 package com.apple.itunes.storekit.model;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -36,52 +39,68 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
     private static final String SERIALIZED_NAME_STOREFRONT = "storefront";
     private static final String SERIALIZED_NAME_STOREFRONT_ID = "storefrontId";
     private static final String SERIALIZED_NAME_TRANSACTION_REASON = "transactionReason";
-    @SerializedName(SERIALIZED_NAME_ORIGINAL_TRANSACTION_ID)
+    private static final String SERIALIZED_NAME_PRICE = "price";
+    private static final String SERIALIZED_NAME_CURRENCY = "currency";
+    private static final String SERIALIZED_NAME_OFFER_DISCOUNT_TYPE = "offerDiscountType";
+    @JsonProperty(SERIALIZED_NAME_ORIGINAL_TRANSACTION_ID)
     private String originalTransactionId;
-    @SerializedName(SERIALIZED_NAME_TRANSACTION_ID)
+    @JsonProperty(SERIALIZED_NAME_TRANSACTION_ID)
     private String transactionId;
-    @SerializedName(SERIALIZED_NAME_WEB_ORDER_LINE_ITEM_ID)
+    @JsonProperty(SERIALIZED_NAME_WEB_ORDER_LINE_ITEM_ID)
     private String webOrderLineItemId;
-    @SerializedName(SERIALIZED_NAME_BUNDLE_ID)
+    @JsonProperty(SERIALIZED_NAME_BUNDLE_ID)
     private String bundleId;
-    @SerializedName(SERIALIZED_NAME_PRODUCT_ID)
+    @JsonProperty(SERIALIZED_NAME_PRODUCT_ID)
     private String productId;
-    @SerializedName(SERIALIZED_NAME_SUBSCRIPTION_GROUP_IDENTIFIER)
+    @JsonProperty(SERIALIZED_NAME_SUBSCRIPTION_GROUP_IDENTIFIER)
     private String subscriptionGroupIdentifier;
-    @SerializedName(SERIALIZED_NAME_PURCHASE_DATE)
+    @JsonProperty(SERIALIZED_NAME_PURCHASE_DATE)
+    @JsonDeserialize(using=XcodeCompatibleTimestampDeserializer.class)
     private Long purchaseDate;
-    @SerializedName(SERIALIZED_NAME_ORIGINAL_PURCHASE_DATE)
+    @JsonProperty(SERIALIZED_NAME_ORIGINAL_PURCHASE_DATE)
+    @JsonDeserialize(using=XcodeCompatibleTimestampDeserializer.class)
     private Long originalPurchaseDate;
-    @SerializedName(SERIALIZED_NAME_EXPIRES_DATE)
+    @JsonProperty(SERIALIZED_NAME_EXPIRES_DATE)
+    @JsonDeserialize(using=XcodeCompatibleTimestampDeserializer.class)
     private Long expiresDate;
-    @SerializedName(SERIALIZED_NAME_QUANTITY)
+    @JsonProperty(SERIALIZED_NAME_QUANTITY)
     private Integer quantity;
-    @SerializedName(SERIALIZED_NAME_TYPE)
-    private Type type;
-    @SerializedName(SERIALIZED_NAME_APP_ACCOUNT_TOKEN)
+    @JsonProperty(SERIALIZED_NAME_TYPE)
+    private String type;
+    @JsonProperty(SERIALIZED_NAME_APP_ACCOUNT_TOKEN)
     private UUID appAccountToken;
-    @SerializedName(SERIALIZED_NAME_IN_APP_OWNERSHIP_TYPE)
-    private InAppOwnershipType inAppOwnershipType;
-    @SerializedName(SERIALIZED_NAME_SIGNED_DATE)
+    @JsonProperty(SERIALIZED_NAME_IN_APP_OWNERSHIP_TYPE)
+    private String inAppOwnershipType;
+    @JsonProperty(SERIALIZED_NAME_SIGNED_DATE)
+    @JsonDeserialize(using=XcodeCompatibleTimestampDeserializer.class)
     private Long signedDate;
-    @SerializedName(SERIALIZED_NAME_REVOCATION_REASON)
-    private RevocationReason revocationReason;
-    @SerializedName(SERIALIZED_NAME_REVOCATION_DATE)
+    @JsonProperty(SERIALIZED_NAME_REVOCATION_REASON)
+    private Integer revocationReason;
+    @JsonProperty(SERIALIZED_NAME_REVOCATION_DATE)
+    @JsonDeserialize(using=XcodeCompatibleTimestampDeserializer.class)
     private Long revocationDate;
-    @SerializedName(SERIALIZED_NAME_IS_UPGRADED)
+    @JsonProperty(SERIALIZED_NAME_IS_UPGRADED)
     private Boolean isUpgraded;
-    @SerializedName(SERIALIZED_NAME_OFFER_TYPE)
-    private OfferType offerType;
-    @SerializedName(SERIALIZED_NAME_OFFER_IDENTIFIER)
+    @JsonProperty(SERIALIZED_NAME_OFFER_TYPE)
+    private Integer offerType;
+    @JsonProperty(SERIALIZED_NAME_OFFER_IDENTIFIER)
     private String offerIdentifier;
-    @SerializedName(SERIALIZED_NAME_ENVIRONMENT)
-    private Environment environment;
-    @SerializedName(SERIALIZED_NAME_STOREFRONT)
+    @JsonProperty(SERIALIZED_NAME_ENVIRONMENT)
+    private String environment;
+    @JsonProperty(SERIALIZED_NAME_STOREFRONT)
     private String storefront;
-    @SerializedName(SERIALIZED_NAME_STOREFRONT_ID)
+    @JsonProperty(SERIALIZED_NAME_STOREFRONT_ID)
     private String storefrontId;
-    @SerializedName(SERIALIZED_NAME_TRANSACTION_REASON)
-    private TransactionReason transactionReason;
+    @JsonProperty(SERIALIZED_NAME_TRANSACTION_REASON)
+    private String transactionReason;
+    @JsonProperty(SERIALIZED_NAME_PRICE)
+    private Long price;
+    @JsonProperty(SERIALIZED_NAME_CURRENCY)
+    private String currency;
+    @JsonProperty(SERIALIZED_NAME_OFFER_DISCOUNT_TYPE)
+    private String offerDiscountType;
+    @JsonAnySetter
+    private Map<String, Object> unknownFields;
 
 
     public JWSTransactionDecodedPayload() {
@@ -278,7 +297,7 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
     }
 
     public JWSTransactionDecodedPayload type(Type type) {
-        this.type = type;
+        this.type = type != null ? type.getValue() : null;
         return this;
     }
 
@@ -289,11 +308,22 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
      * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/type">type</a>
      **/
     public Type getType() {
+        return type != null ? Type.fromValue(type) : null;
+    }
+
+    /**
+     * @see #getType()
+     */
+    public String getRawType() {
         return type;
     }
 
     public void setType(Type type) {
-        this.type = type;
+        this.type = type != null ? type.getValue() : null;
+    }
+
+    public void setRawType(String rawType) {
+        this.type = rawType;
     }
 
     public JWSTransactionDecodedPayload appAccountToken(UUID appAccountToken) {
@@ -316,7 +346,7 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
     }
 
     public JWSTransactionDecodedPayload inAppOwnershipType(InAppOwnershipType inAppOwnershipType) {
-        this.inAppOwnershipType = inAppOwnershipType;
+        this.inAppOwnershipType = inAppOwnershipType != null ? inAppOwnershipType.getValue() : null;
         return this;
     }
 
@@ -327,11 +357,22 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
      * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/inappownershiptype">inAppOwnershipType</a>
      **/
     public InAppOwnershipType getInAppOwnershipType() {
+        return inAppOwnershipType != null ? InAppOwnershipType.fromValue(inAppOwnershipType) : null;
+    }
+
+    /**
+     * @see #getRawInAppOwnershipType()
+     */
+    public String getRawInAppOwnershipType() {
         return inAppOwnershipType;
     }
 
     public void setInAppOwnershipType(InAppOwnershipType inAppOwnershipType) {
-        this.inAppOwnershipType = inAppOwnershipType;
+        this.inAppOwnershipType = inAppOwnershipType != null ? inAppOwnershipType.getValue() : null;
+    }
+
+    public void setRawInAppOwnershipType(String rawInAppOwnershipType) {
+        this.inAppOwnershipType = rawInAppOwnershipType;
     }
 
     public JWSTransactionDecodedPayload signedDate(Long signedDate) {
@@ -354,7 +395,7 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
     }
 
     public JWSTransactionDecodedPayload revocationReason(RevocationReason revocationReason) {
-        this.revocationReason = revocationReason;
+        this.revocationReason = revocationReason != null ? revocationReason.getValue() : null;
         return this;
     }
 
@@ -365,11 +406,22 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
      * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/revocationreason">revocationReason</a>
      **/
     public RevocationReason getRevocationReason() {
+        return revocationReason != null ? RevocationReason.fromValue(revocationReason) : null;
+    }
+
+    /**
+     * @see #getRevocationReason()
+     */
+    public Integer getRawRevocationReason() {
         return revocationReason;
     }
 
     public void setRevocationReason(RevocationReason revocationReason) {
-        this.revocationReason = revocationReason;
+        this.revocationReason = revocationReason != null ? revocationReason.getValue(): null;
+    }
+
+    public void setRawRevocationReason(Integer rawRevocationReason) {
+        this.revocationReason = rawRevocationReason;
     }
 
     public JWSTransactionDecodedPayload revocationDate(Long revocationDate) {
@@ -411,7 +463,7 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
     }
 
     public JWSTransactionDecodedPayload offerType(OfferType offerType) {
-        this.offerType = offerType;
+        this.offerType = offerType != null ? offerType.getValue() : null;
         return this;
     }
 
@@ -422,11 +474,22 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
      * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/offertype">offerType</a>
      **/
     public OfferType getOfferType() {
+        return offerType != null ? OfferType.fromValue(offerType) : null;
+    }
+
+    /**
+     * @see #getOfferType()
+     */
+    public Integer getRawOfferType() {
         return offerType;
     }
 
     public void setOfferType(OfferType offerType) {
-        this.offerType = offerType;
+        this.offerType = offerType != null ? offerType.getValue() : null;
+    }
+
+    public void setRawOfferType(Integer rawOfferType) {
+        this.offerType = rawOfferType;
     }
 
     public JWSTransactionDecodedPayload offerIdentifier(String offerIdentifier) {
@@ -449,7 +512,7 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
     }
 
     public JWSTransactionDecodedPayload environment(Environment environment) {
-        this.environment = environment;
+        this.environment = environment != null ? environment.getValue() : null;
         return this;
     }
 
@@ -460,11 +523,22 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
      * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/environment">environment</a>
      **/
     public Environment getEnvironment() {
+        return environment != null ? Environment.fromValue(environment) : null;
+    }
+
+    /**
+     * @see #getRawEnvironment()
+     */
+    public String getRawEnvironment() {
         return environment;
     }
 
     public void setEnvironment(Environment environment) {
-        this.environment = environment;
+        this.environment = environment != null ? environment.getValue() : null;
+    }
+
+    public void setRawEnvironment(String rawEnvironment) {
+        this.environment = rawEnvironment;
     }
 
     public JWSTransactionDecodedPayload storefront(String storefront) {
@@ -506,7 +580,7 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
     }
 
     public JWSTransactionDecodedPayload transactionReason(TransactionReason transactionReason) {
-        this.transactionReason = transactionReason;
+        this.transactionReason = transactionReason != null ? transactionReason.getValue() : null;
         return this;
     }
 
@@ -517,11 +591,108 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
      * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/transactionreason">transactionReason</a>
      **/
     public TransactionReason getTransactionReason() {
+        return transactionReason != null ? TransactionReason.fromValue(transactionReason) : null;
+    }
+
+    /**
+     * @see #getTransactionReason()
+     */
+    public String getRawTransactionReason() {
         return transactionReason;
     }
 
     public void setTransactionReason(TransactionReason transactionReason) {
-        this.transactionReason = transactionReason;
+        this.transactionReason = transactionReason != null ? transactionReason.getValue() : null;
+    }
+
+    public void setRawTransactionReason(String rawTransactionReason) {
+        this.transactionReason = rawTransactionReason;
+    }
+
+    public JWSTransactionDecodedPayload price(Long price) {
+        this.price = price;
+        return this;
+    }
+
+    /**
+     * The price, in milliunits, of the in-app purchase or subscription offer that you configured in App Store Connect.
+     *
+     * @return price
+     * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/price">price</a>
+     **/
+    public Long getPrice() {
+        return price;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
+    }
+
+    public JWSTransactionDecodedPayload currency(String currency) {
+        this.currency = currency;
+        return this;
+    }
+
+    /**
+     * The three-letter ISO 4217 currency code for the price of the product.
+     *
+     * @return currency
+     * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/currency">currency</a>
+     **/
+    public String getCurrency() {
+        return this.currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public JWSTransactionDecodedPayload offerDiscountType(OfferDiscountType offerDiscountType) {
+        this.offerDiscountType = offerDiscountType != null ? offerDiscountType.getValue() : null;
+        return this;
+    }
+
+    /**
+     * The payment mode you configure for an introductory offer, promotional offer, or offer code on an auto-renewable subscription.
+     *
+     * @return offerDiscountType
+     * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/offerdiscounttype">offerDiscountType</a>
+     **/
+    public OfferDiscountType getOfferDiscountType() {
+        return offerDiscountType != null ? OfferDiscountType.fromValue(offerDiscountType) : null;
+    }
+
+    /**
+     * @see #getOfferDiscountType()
+     */
+    public String getRawOfferDiscountType() {
+        return offerDiscountType;
+    }
+
+    public void setOfferDiscountType(OfferDiscountType offerDiscountType) {
+        this.offerDiscountType = offerDiscountType != null ? offerDiscountType.getValue() : null;
+    }
+
+    public void setRawOfferDiscountType(String rawOfferDiscountType) {
+        this.offerDiscountType = rawOfferDiscountType;
+    }
+
+    public JWSTransactionDecodedPayload unknownFields(Map<String, Object> unknownFields) {
+        this.unknownFields = unknownFields;
+        return this;
+    }
+
+    /**
+     Fields that are not recognized for this object
+
+     @return A map of JSON keys to objects
+     */
+    public Map<String, Object> getUnknownFields() {
+        return unknownFields;
+    }
+
+    public void setUnknownFields(Map<String, Object> unknownFields) {
+        this.unknownFields = unknownFields;
     }
 
     @Override
@@ -555,12 +726,16 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
                 Objects.equals(this.environment, jwSTransactionDecodedPayload.environment) &&
                 Objects.equals(this.storefront, jwSTransactionDecodedPayload.storefront) &&
                 Objects.equals(this.storefrontId, jwSTransactionDecodedPayload.storefrontId) &&
-                Objects.equals(this.transactionReason, jwSTransactionDecodedPayload.transactionReason);
+                Objects.equals(this.transactionReason, jwSTransactionDecodedPayload.transactionReason) &&
+                Objects.equals(this.price, jwSTransactionDecodedPayload.price) &&
+                Objects.equals(this.currency, jwSTransactionDecodedPayload.currency) &&
+                Objects.equals(this.offerDiscountType, jwSTransactionDecodedPayload.offerDiscountType) &&
+                Objects.equals(this.unknownFields, jwSTransactionDecodedPayload.unknownFields);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(originalTransactionId, transactionId, webOrderLineItemId, bundleId, productId, subscriptionGroupIdentifier, purchaseDate, originalPurchaseDate, expiresDate, quantity, type, appAccountToken, inAppOwnershipType, signedDate, revocationReason, revocationDate, isUpgraded, offerType, offerIdentifier, environment, storefront, storefrontId, transactionReason);
+        return Objects.hash(originalTransactionId, transactionId, webOrderLineItemId, bundleId, productId, subscriptionGroupIdentifier, purchaseDate, originalPurchaseDate, expiresDate, quantity, type, appAccountToken, inAppOwnershipType, signedDate, revocationReason, revocationDate, isUpgraded, offerType, offerIdentifier, environment, storefront, storefrontId, transactionReason, price, currency, offerDiscountType, unknownFields);
     }
 
     @Override
@@ -576,19 +751,23 @@ public class JWSTransactionDecodedPayload implements DecodedSignedData {
                 ", originalPurchaseDate=" + originalPurchaseDate +
                 ", expiresDate=" + expiresDate +
                 ", quantity=" + quantity +
-                ", type=" + type +
+                ", type='" + type + '\'' +
                 ", appAccountToken=" + appAccountToken +
-                ", inAppOwnershipType=" + inAppOwnershipType +
+                ", inAppOwnershipType='" + inAppOwnershipType + '\'' +
                 ", signedDate=" + signedDate +
                 ", revocationReason=" + revocationReason +
                 ", revocationDate=" + revocationDate +
                 ", isUpgraded=" + isUpgraded +
                 ", offerType=" + offerType +
                 ", offerIdentifier='" + offerIdentifier + '\'' +
-                ", environment=" + environment +
+                ", environment='" + environment + '\'' +
                 ", storefront='" + storefront + '\'' +
                 ", storefrontId='" + storefrontId + '\'' +
-                ", transactionReason=" + transactionReason +
+                ", transactionReason='" + transactionReason + '\'' +
+                ", price=" + price +
+                ", currency='" + currency + '\'' +
+                ", offerDiscountType='" + offerDiscountType + '\'' +
+                ", unknownFields=" + unknownFields +
                 '}';
     }
 }

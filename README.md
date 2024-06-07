@@ -2,15 +2,10 @@
 The Java server library for the [App Store Server API](https://developer.apple.com/documentation/appstoreserverapi) and [App Store Server Notifications](https://developer.apple.com/documentation/appstoreservernotifications). Also available in [Swift](https://github.com/apple/app-store-server-library-swift), [Python](https://github.com/apple/app-store-server-library-python), and [Node.js](https://github.com/apple/app-store-server-library-node).
 
 ## Table of Contents
-1. [Beta](#-beta-)
-2. [Installation](#installation)
-3. [Documentation](#documentation)
-4. [Usage](#usage)
-5. [Support](#support)
-
-## ⚠️ Beta ⚠️
-
-This software is currently in Beta testing. Therefore, it should only be used for testing purposes, like for the Sandbox environment. API signatures may change between releases and signature verification may receive security updates.
+1. [Installation](#installation)
+2. [Documentation](#documentation)
+3. [Usage](#usage)
+4. [Support](#support)
 
 ## Installation
 
@@ -20,7 +15,7 @@ This software is currently in Beta testing. Therefore, it should only be used fo
 
 ### Gradle
 ```groovy
-implementation 'com.apple.itunes.storekit:app-store-server-library:0.1.3'
+implementation 'com.apple.itunes.storekit:app-store-server-library:2.1.0'
 
 ```
 
@@ -29,7 +24,7 @@ implementation 'com.apple.itunes.storekit:app-store-server-library:0.1.3'
 <dependency>
     <groupId>com.apple.itunes.storekit</groupId>
     <artifactId>app-store-server-library</artifactId>
-    <version>0.1.3</version>
+    <version>2.1.0</version>
 </dependency>
 ```
 
@@ -38,6 +33,15 @@ implementation 'com.apple.itunes.storekit:app-store-server-library:0.1.3'
 [JavaDocs](https://apple.github.io/app-store-server-library-java/)
 
 [WWDC Video](https://developer.apple.com/videos/play/wwdc2023/10143/)
+
+### Obtaining an In-App Purchase key from App Store Connect
+
+To use the App Store Server API or create promotional offer signatures, a signing key downloaded from App Store Connect is required. To obtain this key, you must have the Admin role. Go to Users and Access > Integrations > In-App Purchase. Here you can create and manage keys, as well as find your issuer ID. When using a key, you'll need the key ID and issuer ID as well.
+
+### Obtaining Apple Root Certificates
+
+Download and store the root certificates found in the Apple Root Certificates section of the [Apple PKI](https://www.apple.com/certificateauthority/) site. Provide these certificates as an array to a SignedDataVerifier to allow verifying the signed data comes from Apple.
+
 ## Usage
 
 ### API Usage
@@ -94,8 +98,9 @@ public class ExampleVerification {
                 new FileInputStream("/path/to/rootCA1"),
                 new FileInputStream("/path/to/rootCA2")
         );
+        Long appAppleId = null; // appAppleId must be provided for the Production environment
 
-        SignedDataVerifier signedPayloadVerifier = new SignedDataVerifier(rootCAs, bundleId, null, environment, true);
+        SignedDataVerifier signedPayloadVerifier = new SignedDataVerifier(rootCAs, bundleId, appAppleId, environment, true);
         
         String notificationPayload = "ey...";
 

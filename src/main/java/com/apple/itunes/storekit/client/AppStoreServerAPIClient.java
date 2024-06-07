@@ -23,7 +23,10 @@ import com.apple.itunes.storekit.model.TransactionHistoryRequest;
 import com.apple.itunes.storekit.model.TransactionInfoResponse;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.Authenticator;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -38,18 +41,20 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class AppStoreServerAPIClient {
     private static final String PRODUCTION_URL = "https://api.storekit.itunes.apple.com";
     private static final String SANDBOX_URL = "https://api.storekit-sandbox.itunes.apple.com";
-    private static final String USER_AGENT = "app-store-server-library/java/0.1.3";
+    private static final String LOCAL_TESTING_URL = "https://local-testing-base-url";
+    private static final String USER_AGENT = "app-store-server-library/java/2.1.0";
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     private final OkHttpClient httpClient;
     private final BearerTokenAuthenticator bearerTokenAuthenticator;
     private final HttpUrl urlBase;
-    private final Gson gson;
+    private final ObjectMapper objectMapper;
 
     /**
      * Create an App Store Server API client
@@ -62,17 +67,40 @@ public class AppStoreServerAPIClient {
     public AppStoreServerAPIClient(String signingKey, String keyId, String issuerId, String bundleId, Environment environment) {
         this.bearerTokenAuthenticator = new BearerTokenAuthenticator(signingKey, keyId, issuerId, bundleId);
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        // If a proxy is configured via java.net.ProxySelector.setDefault, this will allow java.net.Authenticator.setDefault to serve as its auth source
+        builder.proxyAuthenticator(Authenticator.JAVA_NET_AUTHENTICATOR);
         this.httpClient = builder.build();
-        this.urlBase = HttpUrl.parse(environment.equals(Environment.SANDBOX) ? SANDBOX_URL : PRODUCTION_URL);
-        this.gson = new Gson();
+        switch (environment) {
+            case XCODE:
+                throw new IllegalArgumentException("Xcode is not a supported environment for an AppStoreServerAPIClient");
+            case PRODUCTION:
+                this.urlBase = HttpUrl.parse(PRODUCTION_URL);
+                break;
+            case LOCAL_TESTING:
+                this.urlBase = HttpUrl.parse(LOCAL_TESTING_URL);
+                break;
+            case SANDBOX:
+                this.urlBase = HttpUrl.parse(SANDBOX_URL);
+                break;
+            default:
+                // This switch statement is exhaustive
+                throw new IllegalStateException();
+        }
+        this.objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(objectMapper.getSerializationConfig().getDefaultVisibilityChecker()
+                .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+                .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+                .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE)
+                .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
+                .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
     }
 
-    private Request buildRequest(String path, String method, Map<String, List<String>> queryParameters, Object body) {
+    private Response makeRequest(String path, String method, Map<String, List<String>> queryParameters, Object body) throws IOException {
         Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.addHeader("User-Agent", USER_AGENT);
         requestBuilder.addHeader("Authorization", "Bearer " + bearerTokenAuthenticator.generateToken());
         requestBuilder.addHeader("Accept", "application/json");
-        HttpUrl.Builder urlBuilder = urlBase.resolve(path).newBuilder();
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(urlBase.resolve(path)).newBuilder();
         for (Map.Entry<String, List<String>> entry : queryParameters.entrySet()) {
             for (String queryValue : entry.getValue()) {
                 urlBuilder.addQueryParameter(entry.getKey(), queryValue);
@@ -80,20 +108,23 @@ public class AppStoreServerAPIClient {
         }
         requestBuilder.url(urlBuilder.build());
         if (body != null) {
-            RequestBody requestBody = RequestBody.create(gson.toJson(body), JSON);
+            RequestBody requestBody = RequestBody.create(objectMapper.writeValueAsString(body), JSON);
             requestBuilder.method(method, requestBody);
         } else if (method.equals("POST")){
             requestBuilder.method(method, RequestBody.create("", null));
         } else {
             requestBuilder.method(method, null);
         }
-        return requestBuilder.build();
+        return getResponse(requestBuilder.build());
     }
 
-    private <T> T makeHttpCall(String path, String method, Map<String, List<String>> queryParameters, Object body, Class<T> clazz) throws IOException, APIException {
-        Request request = buildRequest(path, method, queryParameters, body);
+    protected Response getResponse(Request request) throws IOException {
         Call call = httpClient.newCall(request);
-        try (Response r = call.execute()) {
+        return call.execute();
+    }
+
+    protected <T> T makeHttpCall(String path, String method, Map<String, List<String>> queryParameters, Object body, Class<T> clazz) throws IOException, APIException {
+        try (Response r = makeRequest(path, method, queryParameters, body)) {
             if (r.code() >= 200 && r.code() < 300) {
                 if (clazz.equals(Void.class)) {
                     return null;
@@ -103,24 +134,23 @@ public class AppStoreServerAPIClient {
                 if (responseBody == null) {
                     throw new RuntimeException("Response code was 2xx but no body returned");
                 }
-                return gson.fromJson(responseBody.charStream(), clazz);
+                try {
+                    return objectMapper.readValue(responseBody.charStream(), clazz);
+                } catch (JsonProcessingException e) {
+                    throw new APIException(r.code(), e);
+                }
             } else {
                 // Best effort to decode the body
                 try {
                     ResponseBody responseBody = r.body();
                     if (responseBody != null) {
-                        ErrorPayload errorPayload = gson.fromJson(responseBody.charStream(), ErrorPayload.class);
-                        APIError apiError = APIError.fetchErrorResponseFromErrorCode(errorPayload.getErrorCode());
-                        if (apiError != null) {
-                            throw new APIException(r.code(), apiError);
-                        }
+                        ErrorPayload errorPayload = objectMapper.readValue(responseBody.charStream(), ErrorPayload.class);
+                        throw new APIException(r.code(), errorPayload.getErrorCode(), errorPayload.getErrorMessage());
                     }
                 } catch (APIException e) {
                     throw e;
-                } catch (Exception suppressed) {
-                    APIException e = new APIException(r.code());
-                    e.addSuppressed(suppressed);
-                    throw e;
+                } catch (Exception e) {
+                    throw new APIException(r.code(), e);
                 }
                 throw new APIException(r.code());
             }
@@ -138,7 +168,7 @@ public class AppStoreServerAPIClient {
      * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/extend_subscription_renewal_dates_for_all_active_subscribers">Extend Subscription Renewal Dates for All Active Subscribers</a>
      */
     public MassExtendRenewalDateResponse extendRenewalDateForAllActiveSubscribers(MassExtendRenewalDateRequest massExtendRenewalDateRequest) throws APIException, IOException {
-        return makeHttpCall("/inApps/v1/subscriptions/extend/mass/", "POST", ImmutableMap.of(), massExtendRenewalDateRequest, MassExtendRenewalDateResponse.class);
+        return makeHttpCall("/inApps/v1/subscriptions/extend/mass", "POST", ImmutableMap.of(), massExtendRenewalDateRequest, MassExtendRenewalDateResponse.class);
     }
 
     /**
@@ -288,7 +318,7 @@ public class AppStoreServerAPIClient {
      * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/get_transaction_info">Get Transaction Info</a>
      */
     public TransactionInfoResponse getTransactionInfo(String transactionId) throws APIException, IOException {
-        return makeHttpCall("inApps/v1/transactions/" + transactionId, "GET", ImmutableMap.of(), null, TransactionInfoResponse.class);
+        return makeHttpCall("/inApps/v1/transactions/" + transactionId, "GET", ImmutableMap.of(), null, TransactionInfoResponse.class);
     }
 
     /**

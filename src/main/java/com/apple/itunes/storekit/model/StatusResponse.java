@@ -2,10 +2,12 @@
 
 package com.apple.itunes.storekit.model;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -18,21 +20,23 @@ public class StatusResponse {
     private static final String SERIALIZED_NAME_BUNDLE_ID = "bundleId";
     private static final String SERIALIZED_NAME_APP_APPLE_ID = "appAppleId";
     private static final String SERIALIZED_NAME_DATA = "data";
-    @SerializedName(SERIALIZED_NAME_ENVIRONMENT)
-    private Environment environment;
-    @SerializedName(SERIALIZED_NAME_BUNDLE_ID)
+    @JsonProperty(SERIALIZED_NAME_ENVIRONMENT)
+    private String environment;
+    @JsonProperty(SERIALIZED_NAME_BUNDLE_ID)
     private String bundleId;
-    @SerializedName(SERIALIZED_NAME_APP_APPLE_ID)
+    @JsonProperty(SERIALIZED_NAME_APP_APPLE_ID)
     private Long appAppleId;
-    @SerializedName(SERIALIZED_NAME_DATA)
+    @JsonProperty(SERIALIZED_NAME_DATA)
     private List<SubscriptionGroupIdentifierItem> data = null;
+    @JsonAnySetter
+    private Map<String, Object> unknownFields;
 
 
     public StatusResponse() {
     }
 
     public StatusResponse environment(Environment environment) {
-        this.environment = environment;
+        this.environment = environment != null ? environment.getValue() : null;
         return this;
     }
 
@@ -43,11 +47,22 @@ public class StatusResponse {
      * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/environment">environment</a>
      **/
     public Environment getEnvironment() {
+        return environment != null ? Environment.fromValue(environment) : null;
+    }
+
+    /**
+     * @see #getEnvironment()
+     */
+    public String getRawEnvironment() {
         return environment;
     }
 
     public void setEnvironment(Environment environment) {
-        this.environment = environment;
+        this.environment = environment != null ? environment.getValue() : null;
+    }
+
+    public void setRawEnvironment(String rawEnvironment) {
+        this.environment = rawEnvironment;
     }
 
     public StatusResponse bundleId(String bundleId) {
@@ -114,6 +129,25 @@ public class StatusResponse {
         this.data = data;
     }
 
+
+    public StatusResponse unknownFields(Map<String, Object> unknownFields) {
+        this.unknownFields = unknownFields;
+        return this;
+    }
+
+    /**
+     Fields that are not recognized for this object
+
+     @return A map of JSON keys to objects
+     */
+    public Map<String, Object> getUnknownFields() {
+        return unknownFields;
+    }
+
+    public void setUnknownFields(Map<String, Object> unknownFields) {
+        this.unknownFields = unknownFields;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -126,21 +160,23 @@ public class StatusResponse {
         return Objects.equals(this.environment, statusResponse.environment) &&
                 Objects.equals(this.bundleId, statusResponse.bundleId) &&
                 Objects.equals(this.appAppleId, statusResponse.appAppleId) &&
-                Objects.equals(this.data, statusResponse.data);
+                Objects.equals(this.data, statusResponse.data) &&
+                Objects.equals(this.unknownFields, statusResponse.unknownFields);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(environment, bundleId, appAppleId, data);
+        return Objects.hash(environment, bundleId, appAppleId, data, unknownFields);
     }
 
     @Override
     public String toString() {
         return "StatusResponse{" +
-                "environment=" + environment +
+                "environment='" + environment + '\'' +
                 ", bundleId='" + bundleId + '\'' +
                 ", appAppleId=" + appAppleId +
                 ", data=" + data +
+                ", unknownFields=" + unknownFields +
                 '}';
     }
 }
