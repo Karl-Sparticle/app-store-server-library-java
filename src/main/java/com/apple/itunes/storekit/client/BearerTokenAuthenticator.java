@@ -24,6 +24,8 @@ public class BearerTokenAuthenticator {
     private final String issuerId;
     private final String bundleId;
 
+    private final static long DEFAULT_EXPIRES_AT_MINUTES = 5L;
+
     public BearerTokenAuthenticator(String signingKey, String keyId, String issuerId, String bundleId) {
         try {
             signingKey = signingKey.replace("-----BEGIN PRIVATE KEY-----", "")
@@ -45,9 +47,13 @@ public class BearerTokenAuthenticator {
     }
 
     public String generateToken() {
+        return generateToken(DEFAULT_EXPIRES_AT_MINUTES);
+    }
+
+    public String generateToken(long minutes) {
         return JWT.create()
                 .withAudience(APP_STORE_CONNECT_AUDIENCE)
-                .withExpiresAt(Instant.now().plus(ChronoUnit.MINUTES.getDuration().multipliedBy(5)))
+                .withExpiresAt(Instant.now().plus(ChronoUnit.MINUTES.getDuration().multipliedBy(minutes)))
                 .withIssuer(issuerId)
                 .withKeyId(keyId)
                 .withPayload(ImmutableMap.of(BUNDLE_ID_KEY, bundleId))
