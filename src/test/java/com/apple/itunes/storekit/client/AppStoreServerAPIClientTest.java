@@ -44,6 +44,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import okhttp3.MediaType;
 import okhttp3.Protocol;
 import okhttp3.Request;
@@ -51,11 +52,14 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.Buffer;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -88,7 +92,7 @@ public class AppStoreServerAPIClientTest {
             Assertions.assertEquals(45, ((Number) root.get("extendByDays")).intValue());
             Assertions.assertEquals(1, ((Number) root.get("extendReasonCode")).intValue());
             Assertions.assertEquals("fdf964a4-233b-486c-aac1-97d8d52688ac", root.get("requestIdentifier"));
-            Assertions.assertEquals(List.of("USA", "MEX"), root.get("storefrontCountryCodes"));
+            Assertions.assertEquals(ImmutableList.of("USA", "MEX"), root.get("storefrontCountryCodes"));
             Assertions.assertEquals("com.example.productId", root.get("productId"));
         });
 
@@ -96,7 +100,7 @@ public class AppStoreServerAPIClientTest {
                 .extendByDays(45)
                 .extendReasonCode(ExtendReasonCode.CUSTOMER_SATISFACTION)
                 .requestIdentifier("fdf964a4-233b-486c-aac1-97d8d52688ac")
-                .storefrontCountryCodes(List.of("USA", "MEX"))
+                .storefrontCountryCodes(ImmutableList.of("USA", "MEX"))
                 .productId("com.example.productId");
 
         MassExtendRenewalDateResponse massExtendRenewalDateResponse = client.extendRenewalDateForAllActiveSubscribers(extendRenewalDateRequest);
@@ -149,11 +153,11 @@ public class AppStoreServerAPIClientTest {
         AppStoreServerAPIClient client = getClientWithBody("models/getAllSubscriptionStatusesResponse.json", request -> {
             Assertions.assertEquals("GET", request.method());
             Assertions.assertEquals("/inApps/v1/subscriptions/4321", request.url().encodedPath());
-            Assertions.assertEquals(List.of("2", "1"), request.url().queryParameterValues("status"));
+            Assertions.assertEquals(ImmutableList.of("2", "1"), request.url().queryParameterValues("status"));
             Assertions.assertNull(request.body());
         });
 
-        StatusResponse statusResponse = client.getAllSubscriptionStatuses("4321", new Status[] {Status.EXPIRED, Status.ACTIVE});
+        StatusResponse statusResponse = client.getAllSubscriptionStatuses("4321", new Status[]{Status.EXPIRED, Status.ACTIVE});
 
         Assertions.assertNotNull(statusResponse);
         Assertions.assertEquals(Environment.LOCAL_TESTING, statusResponse.getEnvironment());
@@ -163,7 +167,7 @@ public class AppStoreServerAPIClientTest {
 
         SubscriptionGroupIdentifierItem item = new SubscriptionGroupIdentifierItem()
                 .subscriptionGroupIdentifier("sub_group_one")
-                .lastTransactions(List.of(
+                .lastTransactions(ImmutableList.of(
                         new LastTransactionsItem()
                                 .status(Status.ACTIVE)
                                 .originalTransactionId("3749183")
@@ -177,14 +181,14 @@ public class AppStoreServerAPIClientTest {
                 ));
         SubscriptionGroupIdentifierItem secondItem = new SubscriptionGroupIdentifierItem()
                 .subscriptionGroupIdentifier("sub_group_two")
-                .lastTransactions(List.of(
+                .lastTransactions(ImmutableList.of(
                         new LastTransactionsItem()
                                 .status(Status.EXPIRED)
                                 .originalTransactionId("3413453")
                                 .signedTransactionInfo("signed_transaction_three")
                                 .signedRenewalInfo("signed_renewal_three")
                 ));
-        Assertions.assertEquals(List.of(item, secondItem), statusResponse.getData());
+        Assertions.assertEquals(ImmutableList.of(item, secondItem), statusResponse.getData());
     }
 
     @Test
@@ -199,7 +203,7 @@ public class AppStoreServerAPIClientTest {
         RefundHistoryResponse refundHistoryResponse = client.getRefundHistory("555555", "revision_input");
 
         Assertions.assertNotNull(refundHistoryResponse);
-        Assertions.assertEquals(List.of("signed_transaction_one", "signed_transaction_two"), refundHistoryResponse.getSignedTransactions());
+        Assertions.assertEquals(ImmutableList.of("signed_transaction_one", "signed_transaction_two"), refundHistoryResponse.getSignedTransactions());
         Assertions.assertEquals("revision_output", refundHistoryResponse.getRevision());
         Assertions.assertTrue(refundHistoryResponse.getHasMore());
     }
@@ -234,7 +238,7 @@ public class AppStoreServerAPIClientTest {
 
         Assertions.assertNotNull(checkTestNotificationResponse);
         Assertions.assertEquals("signed_payload", checkTestNotificationResponse.getSignedPayload());
-        List<SendAttemptItem> sendAttemptItems = List.of(
+        List<SendAttemptItem> sendAttemptItems = ImmutableList.of(
                 new SendAttemptItem()
                         .attemptDate(1698148900000L)
                         .sendAttemptResult(SendAttemptResult.NO_RESPONSE),
@@ -287,9 +291,9 @@ public class AppStoreServerAPIClientTest {
         Assertions.assertNotNull(notificationHistoryResponse);
         Assertions.assertEquals("57715481-805a-4283-8499-1c19b5d6b20a", notificationHistoryResponse.getPaginationToken());
         Assertions.assertTrue(notificationHistoryResponse.getHasMore());
-        List<NotificationHistoryResponseItem> expectedNotificationHistory = List.of(
+        List<NotificationHistoryResponseItem> expectedNotificationHistory = ImmutableList.of(
                 new NotificationHistoryResponseItem()
-                        .sendAttempts(List.of(
+                        .sendAttempts(ImmutableList.of(
                                 new SendAttemptItem()
                                         .attemptDate(1698148900000L)
                                         .sendAttemptResult(SendAttemptResult.NO_RESPONSE),
@@ -299,7 +303,7 @@ public class AppStoreServerAPIClientTest {
                         ))
                         .signedPayload("signed_payload_one"),
                 new NotificationHistoryResponseItem()
-                        .sendAttempts(List.of(
+                        .sendAttempts(ImmutableList.of(
                                 new SendAttemptItem()
                                         .attemptDate(1698148800000L)
                                         .sendAttemptResult(SendAttemptResult.CIRCULAR_REDIRECT)
@@ -317,10 +321,10 @@ public class AppStoreServerAPIClientTest {
             Assertions.assertEquals("revision_input", request.url().queryParameter("revision"));
             Assertions.assertEquals("123455", request.url().queryParameter("startDate"));
             Assertions.assertEquals("123456", request.url().queryParameter("endDate"));
-            Assertions.assertEquals(List.of("com.example.1", "com.example.2"), request.url().queryParameterValues("productId"));
-            Assertions.assertEquals(List.of("CONSUMABLE", "AUTO_RENEWABLE"), request.url().queryParameterValues("productType"));
+            Assertions.assertEquals(ImmutableList.of("com.example.1", "com.example.2"), request.url().queryParameterValues("productId"));
+            Assertions.assertEquals(ImmutableList.of("CONSUMABLE", "AUTO_RENEWABLE"), request.url().queryParameterValues("productType"));
             Assertions.assertEquals("ASCENDING", request.url().queryParameter("sort"));
-            Assertions.assertEquals(List.of("sub_group_id", "sub_group_id_2"), request.url().queryParameterValues("subscriptionGroupIdentifier"));
+            Assertions.assertEquals(ImmutableList.of("sub_group_id", "sub_group_id_2"), request.url().queryParameterValues("subscriptionGroupIdentifier"));
             Assertions.assertEquals("FAMILY_SHARED", request.url().queryParameter("inAppOwnershipType"));
             Assertions.assertEquals("false", request.url().queryParameter("revoked"));
             Assertions.assertNull(request.body());
@@ -328,13 +332,13 @@ public class AppStoreServerAPIClientTest {
 
         TransactionHistoryRequest request = new TransactionHistoryRequest()
                 .sort(TransactionHistoryRequest.Order.ASCENDING)
-                .productTypes(List.of(TransactionHistoryRequest.ProductType.CONSUMABLE, TransactionHistoryRequest.ProductType.AUTO_RENEWABLE))
+                .productTypes(ImmutableList.of(TransactionHistoryRequest.ProductType.CONSUMABLE, TransactionHistoryRequest.ProductType.AUTO_RENEWABLE))
                 .endDate(123456L)
                 .startDate(123455L)
                 .revoked(false)
                 .inAppOwnershipType(InAppOwnershipType.FAMILY_SHARED)
-                .productIds(List.of("com.example.1", "com.example.2"))
-                .subscriptionGroupIdentifiers(List.of("sub_group_id", "sub_group_id_2"));
+                .productIds(ImmutableList.of("com.example.1", "com.example.2"))
+                .subscriptionGroupIdentifiers(ImmutableList.of("sub_group_id", "sub_group_id_2"));
 
         HistoryResponse historyResponse = client.getTransactionHistory("1234", "revision_input", request);
 
@@ -345,7 +349,7 @@ public class AppStoreServerAPIClientTest {
         Assertions.assertEquals(323232L, historyResponse.getAppAppleId());
         Assertions.assertEquals(Environment.LOCAL_TESTING, historyResponse.getEnvironment());
         Assertions.assertEquals("LocalTesting", historyResponse.getRawEnvironment());
-        Assertions.assertEquals(List.of("signed_transaction_value", "signed_transaction_value2"), historyResponse.getSignedTransactions());
+        Assertions.assertEquals(ImmutableList.of("signed_transaction_value", "signed_transaction_value2"), historyResponse.getSignedTransactions());
     }
 
     @Test
@@ -375,7 +379,7 @@ public class AppStoreServerAPIClientTest {
         Assertions.assertNotNull(orderLookupResponse);
         Assertions.assertEquals(OrderLookupStatus.INVALID, orderLookupResponse.getStatus());
         Assertions.assertEquals(1, orderLookupResponse.getRawStatus());
-        Assertions.assertEquals(List.of("signed_transaction_one", "signed_transaction_two"), orderLookupResponse.getSignedTransactions());
+        Assertions.assertEquals(ImmutableList.of("signed_transaction_one", "signed_transaction_two"), orderLookupResponse.getSignedTransactions());
     }
 
     @Test
@@ -508,7 +512,7 @@ public class AppStoreServerAPIClientTest {
             String authorization = request.header("Authorization");
             Assertions.assertTrue(authorization.startsWith("Bearer "));
             DecodedJWT token = JWT.decode(authorization.substring(7));
-            Assertions.assertEquals(List.of("appstoreconnect-v1"), token.getAudience());
+            Assertions.assertEquals(ImmutableList.of("appstoreconnect-v1"), token.getAudience());
             Assertions.assertEquals("issuerId", token.getIssuer());
             Assertions.assertEquals("keyId", token.getKeyId());
             Assertions.assertEquals("com.example", token.getClaim("bid").asString());
@@ -521,7 +525,8 @@ public class AppStoreServerAPIClientTest {
     @Test
     public void testAPIError() throws IOException {
         String body = TestingUtility.readFile("models/apiException.json");
-        AppStoreServerAPIClient client = getAppStoreServerAPIClient(body, request -> {}, 500);
+        AppStoreServerAPIClient client = getAppStoreServerAPIClient(body, request -> {
+        }, 500);
         try {
             client.getTransactionInfo("1234");
         } catch (APIException e) {
@@ -537,7 +542,8 @@ public class AppStoreServerAPIClientTest {
     @Test
     public void testAPITooManyRequests() throws IOException {
         String body = TestingUtility.readFile("models/apiTooManyRequestsException.json");
-        AppStoreServerAPIClient client = getAppStoreServerAPIClient(body, request -> {}, 429);
+        AppStoreServerAPIClient client = getAppStoreServerAPIClient(body, request -> {
+        }, 429);
         try {
             client.getTransactionInfo("1234");
         } catch (APIException e) {
@@ -553,7 +559,8 @@ public class AppStoreServerAPIClientTest {
     @Test
     public void testAPIUnknownError() throws IOException {
         String body = TestingUtility.readFile("models/apiUnknownError.json");
-        AppStoreServerAPIClient client = getAppStoreServerAPIClient(body, request -> {}, 400);
+        AppStoreServerAPIClient client = getAppStoreServerAPIClient(body, request -> {
+        }, 400);
         try {
             client.getTransactionInfo("1234");
         } catch (APIException e) {
@@ -569,17 +576,18 @@ public class AppStoreServerAPIClientTest {
     @Test
     public void testDecodingWithUnknownEnumValue() throws IOException, APIException {
         String body = TestingUtility.readFile("models/transactionHistoryResponseWithMalformedEnvironment.json");
-        AppStoreServerAPIClient client = getAppStoreServerAPIClient(body, request -> {}, 200);
+        AppStoreServerAPIClient client = getAppStoreServerAPIClient(body, request -> {
+        }, 200);
 
         TransactionHistoryRequest request = new TransactionHistoryRequest()
                 .sort(TransactionHistoryRequest.Order.ASCENDING)
-                .productTypes(List.of(TransactionHistoryRequest.ProductType.CONSUMABLE, TransactionHistoryRequest.ProductType.AUTO_RENEWABLE))
+                .productTypes(ImmutableList.of(TransactionHistoryRequest.ProductType.CONSUMABLE, TransactionHistoryRequest.ProductType.AUTO_RENEWABLE))
                 .endDate(123456L)
                 .startDate(123455L)
                 .revoked(false)
                 .inAppOwnershipType(InAppOwnershipType.FAMILY_SHARED)
-                .productIds(List.of("com.example.1", "com.example.2"))
-                .subscriptionGroupIdentifiers(List.of("sub_group_id", "sub_group_id_2"));
+                .productIds(ImmutableList.of("com.example.1", "com.example.2"))
+                .subscriptionGroupIdentifiers(ImmutableList.of("sub_group_id", "sub_group_id_2"));
 
         HistoryResponse historyResponse = client.getTransactionHistory("1234", "revision_input", request);
 
@@ -590,17 +598,18 @@ public class AppStoreServerAPIClientTest {
     @Test
     public void testDecodingWithMalformedJson() throws IOException {
         String body = TestingUtility.readFile("models/transactionHistoryResponseWithMalformedAppAppleId.json");
-        AppStoreServerAPIClient client = getAppStoreServerAPIClient(body, request -> {}, 200);
+        AppStoreServerAPIClient client = getAppStoreServerAPIClient(body, request -> {
+        }, 200);
 
         TransactionHistoryRequest request = new TransactionHistoryRequest()
                 .sort(TransactionHistoryRequest.Order.ASCENDING)
-                .productTypes(List.of(TransactionHistoryRequest.ProductType.CONSUMABLE, TransactionHistoryRequest.ProductType.AUTO_RENEWABLE))
+                .productTypes(ImmutableList.of(TransactionHistoryRequest.ProductType.CONSUMABLE, TransactionHistoryRequest.ProductType.AUTO_RENEWABLE))
                 .endDate(123456L)
                 .startDate(123455L)
                 .revoked(false)
                 .inAppOwnershipType(InAppOwnershipType.FAMILY_SHARED)
-                .productIds(List.of("com.example.1", "com.example.2"))
-                .subscriptionGroupIdentifiers(List.of("sub_group_id", "sub_group_id_2"));
+                .productIds(ImmutableList.of("com.example.1", "com.example.2"))
+                .subscriptionGroupIdentifiers(ImmutableList.of("sub_group_id", "sub_group_id_2"));
 
         try {
             client.getTransactionHistory("1234", "revision_input", request);
@@ -618,7 +627,7 @@ public class AppStoreServerAPIClientTest {
     @Test
     public void testXcodeEnvironmentNotSupportedError() throws IOException {
         try (InputStream key = this.getClass().getClassLoader().getResourceAsStream("certs/testSigningKey.p8")) {
-            new AppStoreServerAPIClient(new String(key.readAllBytes()), "keyId", "issuerId", "com.example", Environment.XCODE);
+            new AppStoreServerAPIClient(IOUtils.toString(key, StandardCharsets.UTF_8), "keyId", "issuerId", "com.example", Environment.XCODE);
         } catch (IllegalArgumentException e) {
             Assertions.assertEquals("Xcode is not a supported environment for an AppStoreServerAPIClient", e.getMessage());
             return;
@@ -638,7 +647,7 @@ public class AppStoreServerAPIClientTest {
     private AppStoreServerAPIClient getAppStoreServerAPIClient(String body, Consumer<Request> requestVerifier, int statusCode) throws IOException {
         try (InputStream key = this.getClass().getClassLoader().getResourceAsStream("certs/testSigningKey.p8")) {
             Assertions.assertNotNull(key);
-            return new AppStoreServerAPIClient(new String(key.readAllBytes()), "keyId", "issuerId", "com.example", Environment.LOCAL_TESTING) {
+            return new AppStoreServerAPIClient(IOUtils.toString(key, StandardCharsets.UTF_8), "keyId", "issuerId", "com.example", Environment.LOCAL_TESTING) {
                 @Override
                 protected Response getResponse(Request request) {
                     requestVerifier.accept(request);

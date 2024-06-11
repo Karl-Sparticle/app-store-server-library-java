@@ -6,6 +6,8 @@ import com.apple.itunes.storekit.util.SignedDataCreator;
 import com.apple.itunes.storekit.util.TestingUtility;
 import com.apple.itunes.storekit.verification.SignedDataVerifier;
 import com.apple.itunes.storekit.verification.VerificationException;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -97,7 +99,7 @@ public class ResponseBodyV2DecodedPayloadTest {
         Assertions.assertEquals("com.example", notification.getSummary().getBundleId());
         Assertions.assertEquals("com.example.product", notification.getSummary().getProductId());
         Assertions.assertEquals("efb27071-45a4-4aca-9854-2a1e9146f265", notification.getSummary().getRequestIdentifier());
-        Assertions.assertEquals(List.of("CAN", "USA", "MEX"), notification.getSummary().getStorefrontCountryCodes());
+        Assertions.assertEquals(ImmutableList.of("CAN", "USA", "MEX"), notification.getSummary().getStorefrontCountryCodes());
         Assertions.assertEquals(5, notification.getSummary().getSucceededCount());
         Assertions.assertEquals(2, notification.getSummary().getFailedCount());
     }
@@ -106,7 +108,7 @@ public class ResponseBodyV2DecodedPayloadTest {
     public void testExternalPurchaseTokenNotificationDecoding() throws IOException, NoSuchAlgorithmException, VerificationException {
         String signedNotification = SignedDataCreator.createSignedDataFromJson("models/signedExternalPurchaseTokenNotification.json");
 
-        SignedDataVerifier verifier = new SignedDataVerifier(Set.of(new ByteArrayInputStream(TestingUtility.readBytes("certs/testCA.der"))), "com.example", 1234L, Environment.LOCAL_TESTING, false) {
+        SignedDataVerifier verifier = new SignedDataVerifier(ImmutableSet.of(new ByteArrayInputStream(TestingUtility.readBytes("certs/testCA.der"))), "com.example", 1234L, Environment.LOCAL_TESTING, false) {
             @Override
             protected void verifyNotification(String bundleId, Long appAppleId, Environment notificationEnv) {
                 Assertions.assertEquals("com.example", bundleId);
@@ -137,7 +139,7 @@ public class ResponseBodyV2DecodedPayloadTest {
     public void testExternalPurchaseTokenSandboxNotificationDecoding() throws IOException, NoSuchAlgorithmException, VerificationException {
         String signedNotification = SignedDataCreator.createSignedDataFromJson("models/signedExternalPurchaseTokenSandboxNotification.json");
 
-        SignedDataVerifier verifier = new SignedDataVerifier(Set.of(new ByteArrayInputStream(TestingUtility.readBytes("certs/testCA.der"))), "com.example", 1234L, Environment.LOCAL_TESTING, false) {
+        SignedDataVerifier verifier = new SignedDataVerifier(ImmutableSet.of(new ByteArrayInputStream(TestingUtility.readBytes("certs/testCA.der"))), "com.example", 1234L, Environment.LOCAL_TESTING, false) {
             @Override
             protected void verifyNotification(String bundleId, Long appAppleId, Environment notificationEnv) {
                 Assertions.assertEquals("com.example", bundleId);

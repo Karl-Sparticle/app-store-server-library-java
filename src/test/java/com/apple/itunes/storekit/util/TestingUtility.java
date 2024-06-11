@@ -4,6 +4,8 @@ package com.apple.itunes.storekit.util;
 
 import com.apple.itunes.storekit.model.Environment;
 import com.apple.itunes.storekit.verification.SignedDataVerifier;
+import com.google.common.collect.ImmutableSet;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.ByteArrayInputStream;
@@ -21,12 +23,12 @@ public class TestingUtility {
     public static byte[] readBytes(String file) throws IOException {
         try (InputStream stream = TestingUtility.class.getClassLoader().getResourceAsStream(file)) {
             Assertions.assertNotNull(stream);
-            return stream.readAllBytes();
+            return IOUtils.toByteArray(stream);
         }
     }
 
     public static SignedDataVerifier getSignedPayloadVerifier(Environment environment, String bundleId, Long appAppleId) throws IOException {
-        return new SignedDataVerifier(Set.of(new ByteArrayInputStream(readBytes("certs/testCA.der"))), bundleId, appAppleId, environment, false);
+        return new SignedDataVerifier(ImmutableSet.of(new ByteArrayInputStream(readBytes("certs/testCA.der"))), bundleId, appAppleId, environment, false);
     }
 
     public static SignedDataVerifier getSignedPayloadVerifier(Environment environment, String bundleId) throws IOException {
