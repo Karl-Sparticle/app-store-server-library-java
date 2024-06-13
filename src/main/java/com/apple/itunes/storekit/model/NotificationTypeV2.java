@@ -11,6 +11,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum NotificationTypeV2 {
 
+    ONE_TIME_CHARGE("ONE_TIME_CHARGE"),  // The ONE_TIME_CHARGE notification is currently available only in the sandbox environment.
+
     SUBSCRIBED("SUBSCRIBED"),
     DID_CHANGE_RENEWAL_PREF("DID_CHANGE_RENEWAL_PREF"),
     DID_CHANGE_RENEWAL_STATUS("DID_CHANGE_RENEWAL_STATUS"),
