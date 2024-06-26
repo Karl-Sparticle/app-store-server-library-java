@@ -349,7 +349,7 @@ public class AppStoreServerAPIClientTest {
         Assertions.assertEquals(323232L, historyResponse.getAppAppleId());
         Assertions.assertEquals(Environment.LOCAL_TESTING, historyResponse.getEnvironment());
         Assertions.assertEquals("LocalTesting", historyResponse.getRawEnvironment());
-        Assertions.assertEquals(List.of("signed_transaction_value", "signed_transaction_value2"), historyResponse.getSignedTransactions());
+        Assertions.assertEquals(ImmutableList.of("signed_transaction_value", "signed_transaction_value2"), historyResponse.getSignedTransactions());
     }
 
     @Test
@@ -360,10 +360,10 @@ public class AppStoreServerAPIClientTest {
             Assertions.assertEquals("revision_input", request.url().queryParameter("revision"));
             Assertions.assertEquals("123455", request.url().queryParameter("startDate"));
             Assertions.assertEquals("123456", request.url().queryParameter("endDate"));
-            Assertions.assertEquals(List.of("com.example.1", "com.example.2"), request.url().queryParameterValues("productId"));
-            Assertions.assertEquals(List.of("CONSUMABLE", "AUTO_RENEWABLE"), request.url().queryParameterValues("productType"));
+            Assertions.assertEquals(ImmutableList.of("com.example.1", "com.example.2"), request.url().queryParameterValues("productId"));
+            Assertions.assertEquals(ImmutableList.of("CONSUMABLE", "AUTO_RENEWABLE"), request.url().queryParameterValues("productType"));
             Assertions.assertEquals("ASCENDING", request.url().queryParameter("sort"));
-            Assertions.assertEquals(List.of("sub_group_id", "sub_group_id_2"), request.url().queryParameterValues("subscriptionGroupIdentifier"));
+            Assertions.assertEquals(ImmutableList.of("sub_group_id", "sub_group_id_2"), request.url().queryParameterValues("subscriptionGroupIdentifier"));
             Assertions.assertEquals("FAMILY_SHARED", request.url().queryParameter("inAppOwnershipType"));
             Assertions.assertEquals("false", request.url().queryParameter("revoked"));
             Assertions.assertNull(request.body());
@@ -371,13 +371,13 @@ public class AppStoreServerAPIClientTest {
 
         TransactionHistoryRequest request = new TransactionHistoryRequest()
                 .sort(TransactionHistoryRequest.Order.ASCENDING)
-                .productTypes(List.of(TransactionHistoryRequest.ProductType.CONSUMABLE, TransactionHistoryRequest.ProductType.AUTO_RENEWABLE))
+                .productTypes(ImmutableList.of(TransactionHistoryRequest.ProductType.CONSUMABLE, TransactionHistoryRequest.ProductType.AUTO_RENEWABLE))
                 .endDate(123456L)
                 .startDate(123455L)
                 .revoked(false)
                 .inAppOwnershipType(InAppOwnershipType.FAMILY_SHARED)
-                .productIds(List.of("com.example.1", "com.example.2"))
-                .subscriptionGroupIdentifiers(List.of("sub_group_id", "sub_group_id_2"));
+                .productIds(ImmutableList.of("com.example.1", "com.example.2"))
+                .subscriptionGroupIdentifiers(ImmutableList.of("sub_group_id", "sub_group_id_2"));
 
         HistoryResponse historyResponse = client.getTransactionHistory("1234", "revision_input", request, GetTransactionHistoryVersion.V2);
 
