@@ -10,9 +10,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * @see <a href="https://developer.apple.com/documentation/appstoreservernotifications/notificationtype">notificationType</a>
  */
 public enum NotificationTypeV2 {
-
-    ONE_TIME_CHARGE("ONE_TIME_CHARGE"),  // The ONE_TIME_CHARGE notification is currently available only in the sandbox environment.
-
     SUBSCRIBED("SUBSCRIBED"),
     DID_CHANGE_RENEWAL_PREF("DID_CHANGE_RENEWAL_PREF"),
     DID_CHANGE_RENEWAL_STATUS("DID_CHANGE_RENEWAL_STATUS"),
@@ -31,7 +28,7 @@ public enum NotificationTypeV2 {
     RENEWAL_EXTENSION("RENEWAL_EXTENSION"),
     REFUND_REVERSED("REFUND_REVERSED"),
     EXTERNAL_PURCHASE_TOKEN("EXTERNAL_PURCHASE_TOKEN"),
-    ONE_TIME_CHARGE("ONE_TIME_CHARGE");
+    ONE_TIME_CHARGE("ONE_TIME_CHARGE");  // The ONE_TIME_CHARGE notification is currently available only in the sandbox environment.
 
     private final String value;
 

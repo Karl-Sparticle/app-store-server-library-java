@@ -58,10 +58,11 @@ public class AppStoreServerAPIClient {
 
     /**
      * Create an App Store Server API client
-     * @param signingKey Your private key downloaded from App Store Connect
-     * @param keyId Your private key ID from App Store Connect
-     * @param issuerId Your issuer ID from the Keys page in App Store Connect
-     * @param bundleId Your app’s bundle ID
+     *
+     * @param signingKey  Your private key downloaded from App Store Connect
+     * @param keyId       Your private key ID from App Store Connect
+     * @param issuerId    Your issuer ID from the Keys page in App Store Connect
+     * @param bundleId    Your app’s bundle ID
      * @param environment The environment to target
      */
     public AppStoreServerAPIClient(String signingKey, String keyId, String issuerId, String bundleId, Environment environment) {
@@ -110,7 +111,7 @@ public class AppStoreServerAPIClient {
         if (body != null) {
             RequestBody requestBody = RequestBody.create(objectMapper.writeValueAsString(body), JSON);
             requestBuilder.method(method, requestBody);
-        } else if (method.equals("POST")){
+        } else if (method.equals("POST")) {
             requestBuilder.method(method, RequestBody.create("", null));
         } else {
             requestBuilder.method(method, null);
@@ -189,7 +190,7 @@ public class AppStoreServerAPIClient {
      * Get the statuses for all of a customer’s auto-renewable subscriptions in your app.
      *
      * @param transactionId The identifier of a transaction that belongs to the customer, and which may be an original transaction identifier.
-     * @param status An optional filter that indicates the status of subscriptions to include in the response. Your query may specify more than one status query parameter.
+     * @param status        An optional filter that indicates the status of subscriptions to include in the response. Your query may specify more than one status query parameter.
      * @return A response that contains status information for all of a customer’s auto-renewable subscriptions in your app.
      * @throws APIException If a response was returned indicating the request could not be processed
      * @throws IOException  If an exception was thrown while making the request
@@ -207,7 +208,7 @@ public class AppStoreServerAPIClient {
      * Get a paginated list of all of a customer’s refunded in-app purchases for your app.
      *
      * @param transactionId The identifier of a transaction that belongs to the customer, and which may be an original transaction identifier.
-     * @param revision              A token you provide to get the next set of up to 20 transactions. All responses include a revision token. Use the revision token from the previous RefundHistoryResponse.
+     * @param revision      A token you provide to get the next set of up to 20 transactions. All responses include a revision token. Use the revision token from the previous RefundHistoryResponse.
      * @return A response that contains status information for all of a customer’s auto-renewable subscriptions in your app.
      * @throws APIException If a response was returned indicating the request could not be processed
      * @throws IOException  If an exception was thrown while making the request
@@ -251,7 +252,7 @@ public class AppStoreServerAPIClient {
     /**
      * Get a list of notifications that the App Store server attempted to send to your server.
      *
-     * @param paginationToken An optional token you use to get the next set of up to 20 notification history records. All responses that have more records available include a paginationToken. Omit this parameter the first time you call this endpoint.
+     * @param paginationToken            An optional token you use to get the next set of up to 20 notification history records. All responses that have more records available include a paginationToken. Omit this parameter the first time you call this endpoint.
      * @param notificationHistoryRequest The request body that includes the start and end dates, and optional query constraints.
      * @return A response that contains the App Store Server Notifications history for your app.
      * @throws APIException If a response was returned indicating the request could not be processed
@@ -269,7 +270,7 @@ public class AppStoreServerAPIClient {
     /**
      * @see #getTransactionHistory(String, String, TransactionHistoryRequest, GetTransactionHistoryVersion)
      */
-    @Deprecated(since = "2.2.0")
+    @Deprecated
     public HistoryResponse getTransactionHistory(String transactionId, String revision, TransactionHistoryRequest transactionHistoryRequest) throws APIException, IOException {
         return this.getTransactionHistory(transactionId, revision, transactionHistoryRequest, GetTransactionHistoryVersion.V1);
     }
@@ -278,7 +279,7 @@ public class AppStoreServerAPIClient {
      * Get a customer’s in-app purchase transaction history for your app.
      *
      * @param transactionId The identifier of a transaction that belongs to the customer, and which may be an original transaction identifier.
-     * @param revision              A token you provide to get the next set of up to 20 transactions. All responses include a revision token. Note: For requests that use the revision token, include the same query parameters from the initial request. Use the revision token from the previous HistoryResponse.
+     * @param revision      A token you provide to get the next set of up to 20 transactions. All responses include a revision token. Note: For requests that use the revision token, include the same query parameters from the initial request. Use the revision token from the previous HistoryResponse.
      * @param version The version of the Get Transaction History endpoint to use. V2 is recommended.
      * @return A response that contains the customer’s transaction history for an app.
      * @throws APIException If a response was returned indicating the request could not be processed
@@ -319,11 +320,11 @@ public class AppStoreServerAPIClient {
 
     /**
      * Get information about a single transaction for your app.
-     * 
+     *
      * @param transactionId The identifier of a transaction that belongs to the customer, and which may be an original transaction identifier.
      * @return A response that contains signed transaction information for a single transaction.
      * @throws APIException If a response was returned indicating the request could not be processed
-     * @throws IOException If an exception was thrown while making the request
+     * @throws IOException  If an exception was thrown while making the request
      * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/get_transaction_info">Get Transaction Info</a>
      */
     public TransactionInfoResponse getTransactionInfo(String transactionId) throws APIException, IOException {
@@ -336,7 +337,7 @@ public class AppStoreServerAPIClient {
      * @param orderId The order ID for in-app purchases that belong to the customer.
      * @return A response that includes the order lookup status and an array of signed transactions for the in-app purchases in the order.
      * @throws APIException If a response was returned indicating the request could not be processed
-     * @throws IOException If an exception was thrown while making the request
+     * @throws IOException  If an exception was thrown while making the request
      * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/look_up_order_id">Look Up Order ID</a>
      */
     public OrderLookupResponse lookUpOrderId(String orderId) throws APIException, IOException {
@@ -358,8 +359,8 @@ public class AppStoreServerAPIClient {
     /**
      * Send consumption information about a consumable in-app purchase to the App Store after your server receives a consumption request notification.
      *
-     * @param transactionId The transaction identifier for which you’re providing consumption information. You receive this identifier in the CONSUMPTION_REQUEST notification the App Store sends to your server.
-     * @param consumptionRequest    The request body containing consumption information.
+     * @param transactionId      The transaction identifier for which you’re providing consumption information. You receive this identifier in the CONSUMPTION_REQUEST notification the App Store sends to your server.
+     * @param consumptionRequest The request body containing consumption information.
      * @throws APIException If a response was returned indicating the request could not be processed
      * @throws IOException  If an exception was thrown while making the request
      * @see <a href="https://developer.apple.com/documentation/appstoreserverapi/send_consumption_information">Send Consumption Information</a>
