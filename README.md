@@ -1,3 +1,10 @@
+This repository fork from apple/app-store-server-library-java
+
+I have used several open-source libraries to replace some JDK 11-specific code in order to achieve compatibility with **JDK 1.8**
+
+https://github.com/apple/app-store-server-library-java/issues/44
+
+
 # Apple App Store Server Java Library
 The Java server library for the [App Store Server API](https://developer.apple.com/documentation/appstoreserverapi) and [App Store Server Notifications](https://developer.apple.com/documentation/appstoreservernotifications). Also available in [Swift](https://github.com/apple/app-store-server-library-swift), [Python](https://github.com/apple/app-store-server-library-python), and [Node.js](https://github.com/apple/app-store-server-library-node).
 
@@ -11,7 +18,7 @@ The Java server library for the [App Store Server API](https://developer.apple.c
 
 #### Requirements
 
-- Java 11+
+- Java 1.8
 
 ### Gradle
 ```groovy
